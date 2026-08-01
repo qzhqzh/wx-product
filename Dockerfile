@@ -25,5 +25,10 @@ COPY --from=frontend /app/static/dist ./static/dist
 RUN chmod -R a+rX /app \
     && chmod 755 scripts scripts/entrypoint.sh \
     && .venv/bin/python manage.py collectstatic --noinput
+USER 10001:10001
 ENTRYPOINT ["./scripts/entrypoint.sh"]
 CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "120"]
+
+FROM nginx:1.29-alpine AS nginx
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=runtime /app/staticfiles /app/staticfiles
