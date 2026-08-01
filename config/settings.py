@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "storages",
-    "apps.core",
+    "apps.core.apps.CoreConfig",
     "apps.assets",
     "apps.emoji",
     "apps.redpacket",
@@ -51,6 +51,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "apps.core.middleware.PipelineSecurityMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -157,6 +158,12 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.IsAuthenticated",
     ],
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
+    "DEFAULT_PARSER_CLASSES": [
+        "apps.core.parsers.StrictJSONParser",
+        "rest_framework.parsers.FormParser",
+        "rest_framework.parsers.MultiPartParser",
+    ],
+    "EXCEPTION_HANDLER": "apps.core.api.exception_handler",
 }
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
@@ -184,6 +191,16 @@ QWEN_BASE_URL = os.getenv(
     "https://dashscope.aliyuncs.com/compatible-mode/v1",
 )
 DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+
+ASSET_MAX_IMAGE_DIMENSION = int(os.getenv("ASSET_MAX_IMAGE_DIMENSION", "12000"))
+ASSET_MAX_IMAGE_PIXELS = int(os.getenv("ASSET_MAX_IMAGE_PIXELS", "40000000"))
+ASSET_MAX_ANIMATION_FRAMES = int(os.getenv("ASSET_MAX_ANIMATION_FRAMES", "120"))
+ASSET_MAX_TOTAL_FRAME_PIXELS = int(
+    os.getenv("ASSET_MAX_TOTAL_FRAME_PIXELS", "120000000")
+)
+ASSET_MAX_ANIMATION_DURATION_MS = int(
+    os.getenv("ASSET_MAX_ANIMATION_DURATION_MS", "300000")
+)
 
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
