@@ -27,6 +27,11 @@ jobs:
         env:
           CELERY_TASK_ALWAYS_EAGER: "1"
       - run: docker compose config --quiet
+        env:
+          POSTGRES_PASSWORD: ci-postgres-password
+          AWS_SECRET_ACCESS_KEY: ci-minio-secret
+          DJANGO_SECRET_KEY: ci-django-secret
+          DJANGO_SUPERUSER_PASSWORD: ci-admin-password
 
   container-identity:
     runs-on: ubuntu-latest
