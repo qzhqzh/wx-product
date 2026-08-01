@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load vite %}
+{% block title %}{{ pack.name }} · 制作台{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'dashboard' %}">工作台</a><span>/</span><a href="{% url 'project-detail' pack.project.id %}">{{ pack.project.title }}</a><span>/</span><span>{{ pack.name }}</span>{% endblock %}
+{% block head %}{% vite_asset "frontend/main.js" "css" as workbench_css %}<link rel="stylesheet" href="{{ workbench_css }}">{% endblock %}
+{% block content %}
+  <div id="pack-workbench" class="workbench-mount" data-pack-id="{{ pack.id }}">
+    <div class="vue-loading">正在加载制作台…</div>
+  </div>
+{% endblock %}
+{% block scripts %}{% vite_asset "frontend/main.js" as workbench_js %}<script type="module" src="{{ workbench_js }}"></script>{% endblock %}

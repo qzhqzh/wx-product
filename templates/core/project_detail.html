@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ project.title }} · 微信造物台{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'dashboard' %}">工作台</a><span>/</span><a href="{% url 'project-list' %}">项目</a><span>/</span><span>{{ project.title }}</span>{% endblock %}
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{{ project.title }}</h1>
+      <p class="page-description">{{ project.description|default:"这个项目还没有补充说明。" }}</p>
+      <div class="project-context">
+        <span>路线：{{ project.get_lane_display }}</span>
+        {% if project.character_version %}<span>角色：{{ project.character_version }}</span>{% endif %}
+        {% if project.trend_topic %}<span>热点：{{ project.trend_topic.title }}</span>{% endif %}
+        <span>负责人：{{ project.owner|default:"未分配" }}</span>
+      </div>
+    </div>
+    <span class="status-badge">{{ project.get_status_display }}</span>
+  </div>
+
+  <div class="split-layout">
+    <div>
+      <section>
+        <div class="section-header"><h2 class="section-title">表情专辑</h2><span class="section-meta">{{ packs|length }} 套</span></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>专辑</th><th>类型</th><th>完成</th><th>状态</th><th>更新</th></tr></thead>
+            <tbody>
+            {% for pack in packs %}
+              <tr>
+                <td><a class="cell-main" href="{% url 'pack-workbench' pack.id %}">{{ pack.name }}</a><span class="cell-sub">{{ pack.description|truncatechars:48 }}</span></td>
+                <td>{{ pack.get_media_type_display }} · {{ pack.get_pack_type_display }}</td>
+                <td>{{ pack.selected_count }} / {{ pack.target_count }}</td>
+                <td><span class="status-badge {% if pack.status == 'rework' %}is-danger{% elif pack.status == 'published' %}is-success{% endif %}">{{ pack.get_status_display }}</span></td>
+                <td>{{ pack.updated_at|date:"m-d H:i" }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5"><div class="empty-state"><strong>还没有专辑</strong>从右侧填写 Brief，建立第一套静态或动态表情。</div></td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {% if events %}
+      <section class="section">
+        <div class="section-header"><h2 class="section-title">最近流转</h2></div>
+        <div class="panel"><div class="panel-body">
+          <ol class="timeline">
+            {% for event in events %}
+            <li><strong>{{ event.from_state|default:"开始" }} → {{ event.to_state }}</strong><div class="timeline-time">{{ event.actor|default:"系统" }} · {{ event.created_at|date:"m-d H:i" }}</div>{% if event.note %}<div>{{ event.note }}</div>{% endif %}</li>
+            {% endfor %}
+          </ol>
+        </div></div>
+      </section>
+      {% endif %}
+    </div>
+
+    <aside class="panel">
+      <div class="panel-header"><h2 class="panel-title">建立新专辑</h2></div>
+      <div class="panel-body">
+        <form method="post" action="{% url 'pack-create' project.id %}">
+          {% csrf_token %}
+          {% for field in pack_form %}
+          <div class="form-field" style="margin-bottom:13px">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {{ field.errors }}
+          </div>
+          {% endfor %}
+          <button class="btn btn-primary" type="submit" style="width:100%">进入制作台</button>
+        </form>
+      </div>
+    </aside>
+  </div>
+{% endblock %}

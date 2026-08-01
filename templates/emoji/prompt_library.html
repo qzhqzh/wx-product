@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}提示词库 · 微信造物台{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'dashboard' %}">工作台</a><span>/</span><a href="{% url 'emoji-pack-list' %}">表情包</a><span>/</span><span>提示词库</span>{% endblock %}
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">表情包提示词库</h1>
+      <p class="page-description">把基础约束、风格、构图、质量和负向要求拆成可组合片段。默认片段会自动应用到新专辑，单个表情仍可在制作台继续修改。</p>
+    </div>
+    <div class="page-actions"><a class="btn" href="{% url 'emoji-pack-list' %}">返回表情包</a></div>
+  </div>
+
+  <div class="prompt-library-layout">
+    <section>
+      <div class="section-header">
+        <h2 class="section-title">常用提示词</h2>
+        <span class="section-meta">{{ presets|length }} 项</span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>名称与分类</th><th>内容</th><th>使用状态</th><th></th></tr></thead>
+          <tbody>
+          {% for preset in presets %}
+            <tr>
+              <td class="prompt-name-cell"><strong>{{ preset.name }}</strong><span class="cell-sub">{{ preset.get_category_display }} · {{ preset.description|default:"未填写说明" }}</span></td>
+              <td class="prompt-content-cell">{{ preset.content|truncatechars:96 }}</td>
+              <td><div class="prompt-status-stack">{% if preset.is_default %}<span class="status-badge is-success">新专辑默认</span>{% endif %}<span class="status-badge {% if not preset.is_active %}is-danger{% endif %}">{{ preset.is_active|yesno:"启用,停用" }}</span></div></td>
+              <td>
+                <div class="table-actions">
+                  <a class="btn btn-compact" href="{% url 'emoji-prompt-library' %}?edit={{ preset.id }}">编辑</a>
+                  <form action="{% url 'emoji-prompt-toggle' preset.id %}" method="post">
+                    {% csrf_token %}
+                    <button class="btn btn-compact" type="submit">{{ preset.is_active|yesno:"停用,启用" }}</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="4"><div class="empty-state"><strong>还没有常用提示词</strong>从基础约束或常用风格开始建立第一项。</div></td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside class="panel prompt-editor-panel">
+      <div class="panel-header">
+        <h2 class="panel-title">{% if edit_preset %}编辑提示词{% else %}新增提示词{% endif %}</h2>
+        {% if edit_preset %}<a href="{% url 'emoji-prompt-library' %}">取消编辑</a>{% endif %}
+      </div>
+      <div class="panel-body">
+        <p class="form-help">可用变量：<code>{character}</code>、<code>{tone}</code>、<code>{meaning}</code>、<code>{copy_text}</code>、<code>{action}</code>。</p>
+        <form method="post" action="{% if edit_preset %}{% url 'emoji-prompt-update' edit_preset.id %}{% else %}{% url 'emoji-prompt-create' %}{% endif %}">
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="form-field">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {{ field.errors }}
+            </div>
+          {% endfor %}
+          <div class="inline-form-actions"><button class="btn btn-primary" type="submit">保存提示词</button></div>
+        </form>
+      </div>
+    </aside>
+  </div>
+{% endblock %}

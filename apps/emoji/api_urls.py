@@ -1,0 +1,91 @@
+from django.urls import path
+
+from .api import (
+    ExportPackApi,
+    GenerateAllApi,
+    GenerateFramesApi,
+    GenerateItemApi,
+    ItemApprovalApi,
+    ItemPromptApi,
+    ItemSelectionApi,
+    ItemUploadApi,
+    MetricApi,
+    PackDetailApi,
+    PackPromptPresetApi,
+    PlanPackApi,
+    SequenceApi,
+    SubmissionApi,
+    TransitionPackApi,
+    ValidatePackApi,
+)
+
+urlpatterns = [
+    path("packs/<uuid:pack_id>/", PackDetailApi.as_view(), name="api-pack"),
+    path("packs/<uuid:pack_id>/plan/", PlanPackApi.as_view(), name="api-plan-pack"),
+    path(
+        "packs/<uuid:pack_id>/generate/",
+        GenerateAllApi.as_view(),
+        name="api-generate-all",
+    ),
+    path(
+        "packs/<uuid:pack_id>/items/<uuid:item_id>/generate/",
+        GenerateItemApi.as_view(),
+        name="api-generate-item",
+    ),
+    path(
+        "packs/<uuid:pack_id>/items/<uuid:item_id>/prompt/",
+        ItemPromptApi.as_view(),
+        name="api-item-prompt",
+    ),
+    path(
+        "packs/<uuid:pack_id>/prompt-presets/",
+        PackPromptPresetApi.as_view(),
+        name="api-pack-prompt-presets",
+    ),
+    path(
+        "packs/<uuid:pack_id>/items/<uuid:item_id>/select/",
+        ItemSelectionApi.as_view(),
+        name="api-select-item",
+    ),
+    path(
+        "packs/<uuid:pack_id>/items/<uuid:item_id>/approve/",
+        ItemApprovalApi.as_view(),
+        name="api-approve-item",
+    ),
+    path(
+        "packs/<uuid:pack_id>/items/<uuid:item_id>/upload/",
+        ItemUploadApi.as_view(),
+        name="api-upload-item",
+    ),
+    path(
+        "packs/<uuid:pack_id>/items/<uuid:item_id>/frames/",
+        GenerateFramesApi.as_view(),
+        name="api-generate-frames",
+    ),
+    path(
+        "packs/<uuid:pack_id>/items/<uuid:item_id>/sequence/",
+        SequenceApi.as_view(),
+        name="api-sequence",
+    ),
+    path(
+        "packs/<uuid:pack_id>/validate/",
+        ValidatePackApi.as_view(),
+        name="api-validate-pack",
+    ),
+    path(
+        "packs/<uuid:pack_id>/export/",
+        ExportPackApi.as_view(),
+        name="api-export-pack",
+    ),
+    path(
+        "packs/<uuid:pack_id>/transition/",
+        TransitionPackApi.as_view(),
+        name="api-transition-pack",
+    ),
+    path(
+        "packs/<uuid:pack_id>/submissions/",
+        SubmissionApi.as_view(),
+        name="api-submission",
+    ),
+    path("packs/<uuid:pack_id>/metrics/", MetricApi.as_view(), name="api-metrics"),
+]

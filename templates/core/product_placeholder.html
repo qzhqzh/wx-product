@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ line.name }} · 微信造物台{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'dashboard' %}">工作台</a><span>/</span><span>{{ line.name }}</span>{% endblock %}
+{% block content %}
+  <div class="placeholder-stage">
+    <div>
+      <span class="placeholder-code">{{ line.code }}</span>
+      <h2>{{ line.name }}产线已预留</h2>
+      <p>{{ line.description }} 当前只保留产品线注册、权限、素材、规则、任务与审批扩展边界，不创建无用业务表。</p>
+    </div>
+  </div>
+{% endblock %}

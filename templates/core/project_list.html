@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}项目与选题 · 微信造物台{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'dashboard' %}">工作台</a><span>/</span><span>项目与选题</span>{% endblock %}
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">项目与选题</h1>
+      <p class="page-description">原创 IP、热点快线和二者结合的生产入口。角色与热点源可在系统配置中维护。</p>
+    </div>
+  </div>
+
+  <details class="disclosure" {% if form.errors %}open{% endif %}>
+    <summary>新建表情项目</summary>
+    <div class="disclosure-content">
+      <form method="post" action="{% url 'project-create' %}">
+        {% csrf_token %}
+        <div class="form-grid">
+          {% for field in form %}
+          <div class="form-field {% if field.name == 'description' %}is-wide{% endif %}">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {{ field.errors }}
+          </div>
+          {% endfor %}
+        </div>
+        <div class="inline-form-actions"><button class="btn btn-primary" type="submit">创建项目</button></div>
+      </form>
+    </div>
+  </details>
+
+  <section class="section">
+    <div class="section-header"><h2 class="section-title">全部项目</h2><span class="section-meta">{{ projects|length }} 个</span></div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>项目</th><th>内容路线</th><th>角色 / 热点</th><th>负责人</th><th>更新时间</th></tr></thead>
+        <tbody>
+        {% for project in projects %}
+          <tr>
+            <td><a class="cell-main" href="{% url 'project-detail' project.id %}">{{ project.title }}</a><span class="cell-sub">{{ project.get_status_display }}</span></td>
+            <td>{{ project.get_lane_display }}</td>
+            <td>
+              {% if project.character_version %}{{ project.character_version }}{% endif %}
+              {% if project.character_version and project.trend_topic %}<span class="cell-sub">×</span>{% endif %}
+              {% if project.trend_topic %}{{ project.trend_topic.title }}{% endif %}
+            </td>
+            <td>{{ project.owner|default:"未分配" }}</td>
+            <td>{{ project.updated_at|date:"m-d H:i" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5"><div class="empty-state"><strong>从一个明确选题开始</strong>先在系统配置中建立角色版本或热点来源，再创建项目。</div></td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

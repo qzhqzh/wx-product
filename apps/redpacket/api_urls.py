@@ -1,0 +1,67 @@
+from django.urls import path
+
+from .api import (
+    ApproveDesignApi,
+    CampaignDetailApi,
+    CampaignOrderApi,
+    CampaignSubmissionApi,
+    DistributionApi,
+    ExportCampaignApi,
+    GenerateDesignsApi,
+    SelectDesignApi,
+    UploadDesignApi,
+    ValidateCampaignApi,
+)
+
+urlpatterns = [
+    path(
+        "red-packet/campaigns/<uuid:campaign_id>/",
+        CampaignDetailApi.as_view(),
+        name="api-red-packet-campaign",
+    ),
+    path(
+        "red-packet/campaigns/<uuid:campaign_id>/generate/",
+        GenerateDesignsApi.as_view(),
+        name="api-red-packet-generate",
+    ),
+    path(
+        "red-packet/campaigns/<uuid:campaign_id>/upload/",
+        UploadDesignApi.as_view(),
+        name="api-red-packet-upload",
+    ),
+    path(
+        "red-packet/campaigns/<uuid:campaign_id>/designs/<uuid:design_id>/select/",
+        SelectDesignApi.as_view(),
+        name="api-red-packet-select",
+    ),
+    path(
+        "red-packet/campaigns/<uuid:campaign_id>/approve/",
+        ApproveDesignApi.as_view(),
+        name="api-red-packet-approve",
+    ),
+    path(
+        "red-packet/campaigns/<uuid:campaign_id>/validate/",
+        ValidateCampaignApi.as_view(),
+        name="api-red-packet-validate",
+    ),
+    path(
+        "red-packet/campaigns/<uuid:campaign_id>/export/",
+        ExportCampaignApi.as_view(),
+        name="api-red-packet-export",
+    ),
+    path(
+        "red-packet/campaigns/<uuid:campaign_id>/submissions/",
+        CampaignSubmissionApi.as_view(),
+        name="api-red-packet-submission",
+    ),
+    path(
+        "red-packet/campaigns/<uuid:campaign_id>/orders/",
+        CampaignOrderApi.as_view(),
+        name="api-red-packet-order",
+    ),
+    path(
+        "red-packet/campaigns/<uuid:campaign_id>/orders/<uuid:order_id>/distributions/",
+        DistributionApi.as_view(),
+        name="api-red-packet-distribution",
+    ),
+]

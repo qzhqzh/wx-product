@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}总览 · 微信造物台{% endblock %}
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">生产总览</h1>
+      <p class="page-description">把注意力放在需要推进和需要判断的工作上。</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn btn-primary" href="{% url 'emoji-pack-list' %}">表情包流水线</a>
+      <a class="btn" href="{% url 'project-list' %}">项目与选题</a>
+      <a class="btn" href="{% url 'red-packet-list' %}">红包封面</a>
+      <a class="btn" href="{% url 'mini-program-list' %}">小程序版本</a>
+    </div>
+  </div>
+
+  <section class="status-rail" aria-label="生产指标">
+    <div class="stat"><span class="stat-value">{{ stats.active_projects }}</span><span class="stat-label">活跃项目</span></div>
+    <div class="stat"><span class="stat-value">{{ stats.in_production }}</span><span class="stat-label">生产中对象</span></div>
+    <div class="stat"><span class="stat-value">{{ stats.needs_attention }}</span><span class="stat-label">待处理与返修</span></div>
+    <div class="stat"><span class="stat-value">{{ stats.published }}</span><span class="stat-label">已完成 / 发布</span></div>
+  </section>
+
+  <div class="split-layout">
+    <div>
+      <section>
+        <div class="section-header">
+          <h2 class="section-title">近期专辑</h2>
+          <a class="section-meta" href="{% url 'emoji-pack-list' %}">查看全部表情包</a>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>专辑</th><th>项目</th><th>媒介</th><th>进度</th><th>更新</th></tr></thead>
+            <tbody>
+            {% for pack in packs %}
+              <tr>
+                <td><a class="cell-main" href="{% url 'pack-workbench' pack.id %}">{{ pack.name }}</a><span class="cell-sub">{{ pack.target_count }} 个表情</span></td>
+                <td>{{ pack.project.title }}</td>
+                <td>{{ pack.get_media_type_display }}</td>
+                <td><span class="status-badge {% if pack.status == 'rework' %}is-danger{% elif pack.status == 'published' %}is-success{% elif pack.status == 'qa_review' %}is-warning{% endif %}">{{ pack.get_status_display }}</span></td>
+                <td>{{ pack.updated_at|timesince }}前</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5"><div class="empty-state"><strong>还没有表情专辑</strong>先创建一个项目，再定义第一套聊天语义。</div></td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header"><h2 class="section-title">并行产线</h2><span class="section-meta">红包封面 / 小程序</span></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>对象</th><th>产线</th><th>业务阶段</th><th>更新</th></tr></thead>
+            <tbody>
+              {% for campaign in campaigns %}
+              <tr>
+                <td><a class="cell-main" href="{% url 'red-packet-workbench' campaign.id %}">{{ campaign.name }}</a><span class="cell-sub">计划发放 {{ campaign.planned_quantity }} 份</span></td>
+                <td>红包封面</td><td>{{ campaign.get_status_display }}</td><td>{{ campaign.updated_at|timesince }}前</td>
+              </tr>
+              {% endfor %}
+              {% for release in releases %}
+              <tr>
+                <td><a class="cell-main" href="{% url 'mini-program-workbench' release.id %}">{{ release.name }} {{ release.version }}</a><span class="cell-sub">{{ release.get_release_type_display }}</span></td>
+                <td>小程序</td><td>{{ release.get_status_display }}</td><td>{{ release.updated_at|timesince }}前</td>
+              </tr>
+              {% endfor %}
+              {% if not campaigns and not releases %}
+              <tr><td colspan="4"><div class="empty-state">暂无红包封面或小程序版本。</div></td></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header"><h2 class="section-title">项目节奏</h2><span class="section-meta">最近更新</span></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>项目</th><th>路线</th><th>专辑</th><th>负责人</th></tr></thead>
+            <tbody>
+            {% for project in projects %}
+              <tr>
+                <td><a class="cell-main" href="{% url 'project-detail' project.id %}">{{ project.title }}</a><span class="cell-sub">{{ project.get_status_display }}</span></td>
+                <td>{{ project.get_lane_display }}</td>
+                <td>{{ project.active_output_count }} / {{ project.output_count }} 进行中</td>
+                <td>{{ project.owner|default:"未分配" }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="4"><div class="empty-state">暂无项目。</div></td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <aside class="panel">
+      <div class="panel-header"><h2 class="panel-title">最近任务</h2><span class="section-meta">AI / 媒体处理</span></div>
+      <div class="panel-body">
+        <ol class="timeline">
+          {% for job in jobs %}
+          <li>
+            <strong>{{ job.get_job_type_display }} · {{ job.pack.name }}</strong>
+            <div class="timeline-time">{{ job.get_status_display }} · {{ job.created_at|timesince }}前</div>
+            {% if job.error_message %}<div class="cell-sub">{{ job.error_message|truncatechars:80 }}</div>{% endif %}
+          </li>
+          {% empty %}
+          <li><strong>暂无异步任务</strong><div class="timeline-time">生成动作会出现在这里</div></li>
+          {% endfor %}
+        </ol>
+      </div>
+    </aside>
+  </div>
+{% endblock %}

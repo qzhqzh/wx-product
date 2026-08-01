@@ -1,0 +1,13 @@
+.git
+.env
+.venv
+node_modules
+data
+media
+staticfiles
+__pycache__
+.pytest_cache
+.ruff_cache
+*.sqlite3
+*.log
+wx-pipeline-*.png

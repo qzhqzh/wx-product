@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load vite %}
+{% block title %}{{ campaign.name }} · 红包封面制作台{% endblock %}
+{% block breadcrumbs %}
+  <a href="{% url 'dashboard' %}">工作台</a><span>/</span>
+  <a href="{% url 'red-packet-list' %}">红包封面</a><span>/</span><span>{{ campaign.name }}</span>
+{% endblock %}
+{% block head %}{% vite_asset "frontend/main.js" "css" as workbench_css %}<link rel="stylesheet" href="{{ workbench_css }}">{% endblock %}
+{% block content %}
+  <div id="red-packet-workbench" class="workbench-mount" data-campaign-id="{{ campaign.id }}">
+    <div class="vue-loading">正在加载红包封面制作台…</div>
+  </div>
+{% endblock %}
+{% block scripts %}{% vite_asset "frontend/main.js" as workbench_js %}<script type="module" src="{{ workbench_js }}"></script>{% endblock %}

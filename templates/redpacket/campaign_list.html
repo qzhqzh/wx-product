@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}红包封面 · 微信造物台{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'dashboard' %}">工作台</a><span>/</span><span>红包封面</span>{% endblock %}
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">红包封面流水线</h1>
+      <p class="page-description">管理封面故事、设计选稿、权利审核、技术 QA、平台提审、下单库存与渠道发放。</p>
+    </div>
+  </div>
+
+  <div class="split-layout">
+    <section>
+      <div class="section-header">
+        <h2 class="section-title">封面项目</h2>
+        <span class="section-meta">{{ campaigns|length }} 个项目</span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>项目</th><th>受众</th><th>计划数量</th><th>状态</th><th>更新</th></tr></thead>
+          <tbody>
+          {% for campaign in campaigns %}
+            <tr>
+              <td><a class="cell-main" href="{% url 'red-packet-workbench' campaign.id %}">{{ campaign.name }}</a><span class="cell-sub">{{ campaign.greeting|default:"尚未设置祝福语" }}</span></td>
+              <td>{{ campaign.audience|default:"未定义" }}</td>
+              <td>{{ campaign.planned_quantity }}</td>
+              <td><span class="status-badge {% if campaign.status == 'rework' %}is-danger{% elif campaign.status == 'completed' %}is-success{% elif campaign.status == 'qa_review' %}is-warning{% endif %}">{{ campaign.get_status_display }}</span></td>
+              <td>{{ campaign.updated_at|timesince }}前</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5"><div class="empty-state"><strong>还没有红包封面项目</strong>从封面故事和发放目标开始定义第一批项目。</div></td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="panel-header"><h2 class="panel-title">新建红包封面</h2></div>
+      <div class="panel-body">
+        <form action="{% url 'red-packet-create' %}" method="post">
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="form-field">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {{ field.errors }}
+            </div>
+          {% endfor %}
+          <div class="inline-form-actions"><button class="btn btn-primary" type="submit">创建并进入制作台</button></div>
+        </form>
+      </div>
+    </aside>
+  </div>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}表情包 · 微信造物台{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'dashboard' %}">工作台</a><span>/</span><span>表情包</span>{% endblock %}
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">表情包流水线</h1>
+      <p class="page-description">集中管理静态和动态表情专辑，从语义策划、提示词、生成选稿到 QA、投稿和上架。</p>
+    </div>
+    <div class="page-actions">
+      <a class="btn" href="{% url 'emoji-prompt-library' %}">管理提示词库</a>
+      <a class="btn" href="{% url 'project-list' %}">项目与选题</a>
+    </div>
+  </div>
+
+  <div class="split-layout">
+    <section>
+      <div class="section-header">
+        <h2 class="section-title">表情专辑</h2>
+        <span class="section-meta">{{ packs|length }} 套</span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>专辑</th><th>项目</th><th>媒介</th><th>完成</th><th>提示词方案</th><th>状态</th><th>更新</th></tr></thead>
+          <tbody>
+          {% for pack in packs %}
+            <tr>
+              <td><a class="cell-main" href="{% url 'pack-workbench' pack.id %}">{{ pack.name }}</a><span class="cell-sub">{{ pack.description|default:"尚未生成专辑说明"|truncatechars:48 }}</span></td>
+              <td><a href="{% url 'project-detail' pack.project.id %}">{{ pack.project.title }}</a></td>
+              <td>{{ pack.get_media_type_display }} · {{ pack.get_pack_type_display }}</td>
+              <td>{{ pack.selected_count }} / {{ pack.target_count }}</td>
+              <td>{{ pack.prompt_presets.count }} 项</td>
+              <td><span class="status-badge {% if pack.status == 'rework' %}is-danger{% elif pack.status == 'published' %}is-success{% elif pack.status == 'qa_review' %}is-warning{% endif %}">{{ pack.get_status_display }}</span></td>
+              <td>{{ pack.updated_at|date:"m-d H:i" }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="7"><div class="empty-state"><strong>还没有表情专辑</strong>先保留一个项目与选题，再从右侧创建首套表情。</div></td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="panel-header"><h2 class="panel-title">新建表情专辑</h2></div>
+      <div class="panel-body">
+        {% if has_projects %}
+        <form action="{% url 'emoji-pack-create' %}" method="post">
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="form-field">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {{ field.errors }}
+            </div>
+          {% endfor %}
+          <div class="inline-form-actions"><button class="btn btn-primary" type="submit">创建并进入制作台</button></div>
+        </form>
+        {% else %}
+          <div class="empty-state">
+            <strong>先建立项目与选题</strong>
+            表情专辑仍归属于项目，便于复用 IP、热点和权利信息。
+            <a class="btn btn-primary" href="{% url 'project-list' %}">新建表情项目</a>
+          </div>
+        {% endif %}
+      </div>
+    </aside>
+  </div>
+{% endblock %}

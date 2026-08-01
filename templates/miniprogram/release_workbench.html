@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load vite %}
+{% block title %}{{ release.name }} {{ release.version }} · 小程序发布台{% endblock %}
+{% block breadcrumbs %}
+  <a href="{% url 'dashboard' %}">工作台</a><span>/</span>
+  <a href="{% url 'mini-program-list' %}">小程序</a><span>/</span><span>{{ release.name }} {{ release.version }}</span>
+{% endblock %}
+{% block head %}{% vite_asset "frontend/main.js" "css" as workbench_css %}<link rel="stylesheet" href="{{ workbench_css }}">{% endblock %}
+{% block content %}
+  <div id="mini-program-workbench" class="workbench-mount" data-release-id="{{ release.id }}">
+    <div class="vue-loading">正在加载小程序发布台…</div>
+  </div>
+{% endblock %}
+{% block scripts %}{% vite_asset "frontend/main.js" as workbench_js %}<script type="module" src="{{ workbench_js }}"></script>{% endblock %}

@@ -1,0 +1,41 @@
+[project]
+name = "wechat-creation-pipeline"
+version = "0.1.0"
+description = "Internal production pipeline for WeChat ecosystem products"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "celery[redis]>=5.5,<6",
+    "django>=5.2,<5.3",
+    "djangorestframework>=3.16,<3.17",
+    "django-storages[s3]>=1.14,<2",
+    "gunicorn>=23,<24",
+    "openai>=2,<3",
+    "pillow>=11,<13",
+    "psycopg[binary]>=3.2,<4",
+    "whitenoise>=6.9,<7",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4,<10",
+    "pytest-django>=4.11,<5",
+    "ruff>=0.12,<1",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py", "*_tests.py"]
+testpaths = ["tests"]
+norecursedirs = ["data", "media", "staticfiles", "node_modules"]
+addopts = "-q"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+exclude = ["*/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "DJ", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]

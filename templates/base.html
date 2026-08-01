@@ -1,0 +1,86 @@
+{% load static vite %}
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>{% block title %}微信造物台{% endblock %}</title>
+  <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml">
+  {% static_versioned "css/app.css" as app_css %}
+  <link rel="stylesheet" href="{{ app_css }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="主导航">
+      <a class="brand" href="{% url 'dashboard' %}">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M7 4h10a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-4l-4 3v-3H7a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z"/>
+            <path d="M8 9h.01M12 9h.01M16 9h.01"/>
+          </svg>
+        </span>
+        <span class="brand-name">微信造物台</span>
+      </a>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">生产工作区</div>
+        <nav class="sidebar-nav">
+          <a class="nav-item {% if active_path == '/' %}is-active{% endif %}" href="{% url 'dashboard' %}" aria-label="总览">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z"/></svg>
+            <span>总览</span>
+          </a>
+          <a class="nav-item {% if '/projects/' in active_path %}is-active{% endif %}" href="{% url 'project-list' %}" aria-label="项目与选题">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6.5h6l2 2h8v10H4v-12Z"/><path d="M4 11h16"/></svg>
+            <span>项目与选题</span>
+          </a>
+          {% for line in product_lines %}
+            <a class="nav-item {% if line.code in active_path or line.code == 'emoji' and '/packs/' in active_path %}is-active{% endif %}" href="{% if line.code == 'emoji' %}{% url 'emoji-pack-list' %}{% elif line.code == 'red-packet-cover' %}{% url 'red-packet-list' %}{% else %}{% url 'mini-program-list' %}{% endif %}" aria-label="{{ line.name }}">
+              {% if line.code == 'emoji' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M8 10h.01M16 10h.01M8.5 14.5c2.2 1.8 4.8 1.8 7 0"/></svg>
+              {% elif line.code == 'red-packet-cover' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 8h16M9 13h6"/></svg>
+              {% else %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="2.5" width="12" height="19" rx="2"/><path d="M10 18h4"/></svg>
+              {% endif %}
+              <span>{{ line.name }}</span>
+              <small class="nav-state">{{ line.get_status_display }}</small>
+            </a>
+          {% endfor %}
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <a class="nav-item" href="{% url 'admin:index' %}" aria-label="系统配置">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21H9.6v-.1A1.7 1.7 0 0 0 8.5 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3V9.6h.1A1.7 1.7 0 0 0 4.6 8.5a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.1A1.7 1.7 0 0 0 15.5 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.4.26.7.62.9 1 .15.3.2.65.2 1v2c0 .35-.05.7-.2 1-.2.38-.5.74-.9 1Z"/></svg>
+          <span>系统配置</span>
+        </a>
+      </div>
+    </aside>
+
+    <header class="topbar">
+      <div class="breadcrumbs">{% block breadcrumbs %}<span>工作台</span>{% endblock %}</div>
+      <div class="user-menu">
+        <span class="user-avatar" aria-hidden="true">{{ request.user.username|first|upper }}</span>
+        <span class="user-name">{{ request.user.username }}</span>
+        <form action="{% url 'logout' %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn">退出</button>
+        </form>
+      </div>
+    </header>
+
+    {% if messages %}
+      <div class="messages" aria-live="polite">
+        {% for message in messages %}
+          <div class="message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <main class="page">{% block content %}{% endblock %}</main>
+  </div>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

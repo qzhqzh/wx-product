@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}小程序 · 微信造物台{% endblock %}
+{% block breadcrumbs %}<a href="{% url 'dashboard' %}">工作台</a><span>/</span><span>小程序</span>{% endblock %}
+{% block content %}
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">小程序发布流水线</h1>
+      <p class="page-description">把 PRD、构建、体验版、隐私合规、测试证据、微信提审与正式发布纳入同一版本记录。</p>
+    </div>
+  </div>
+
+  <div class="split-layout">
+    <section>
+      <div class="section-header">
+        <h2 class="section-title">版本发布</h2>
+        <span class="section-meta">{{ releases|length }} 个版本</span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>小程序</th><th>版本</th><th>类型</th><th>状态</th><th>更新</th></tr></thead>
+          <tbody>
+          {% for release in releases %}
+            <tr>
+              <td><a class="cell-main" href="{% url 'mini-program-workbench' release.id %}">{{ release.name }}</a><span class="cell-sub">{{ release.app_id|default:"尚未登记 AppID" }}</span></td>
+              <td>{{ release.version }}</td>
+              <td>{{ release.get_release_type_display }}</td>
+              <td><span class="status-badge {% if release.status == 'rework' %}is-danger{% elif release.status == 'released' %}is-success{% elif release.status == 'qa_review' %}is-warning{% endif %}">{{ release.get_status_display }}</span></td>
+              <td>{{ release.updated_at|timesince }}前</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5"><div class="empty-state"><strong>还没有小程序版本</strong>建立首个版本，先锁定 PRD 范围和隐私边界。</div></td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="panel-header"><h2 class="panel-title">新建小程序版本</h2></div>
+      <div class="panel-body">
+        <form action="{% url 'mini-program-create' %}" method="post">
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="form-field">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {{ field.errors }}
+            </div>
+          {% endfor %}
+          <div class="inline-form-actions"><button class="btn btn-primary" type="submit">创建并进入发布台</button></div>
+        </form>
+      </div>
+    </aside>
+  </div>
+{% endblock %}
