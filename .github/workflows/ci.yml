@@ -21,11 +21,11 @@ jobs:
           bun-version: "1.3.0"
       - run: uv sync --frozen
       - run: bun install --frozen-lockfile
+      - run: bun run build
       - run: uv run ruff check .
       - run: uv run pytest -q
         env:
           CELERY_TASK_ALWAYS_EAGER: "1"
-      - run: bun run build
       - run: docker compose config --quiet
 
   container-identity:
