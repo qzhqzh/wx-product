@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.6"
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.0"
+      - run: uv sync --frozen
+      - run: bun install --frozen-lockfile
+      - run: uv run ruff check .
+      - run: uv run pytest -q
+        env:
+          CELERY_TASK_ALWAYS_EAGER: "1"
+      - run: bun run build
+      - run: docker compose config --quiet
+
+  container-identity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build --target runtime -t wx-product:test .
+      - name: Verify non-root runtime
+        run: |
+          test "$(docker run --rm --entrypoint id wx-product:test -u)" = "10001"
