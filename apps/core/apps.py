@@ -12,6 +12,8 @@ class CoreConfig(AppConfig):
         install_media_hardening()
 
         from . import signals  # noqa: F401
+        from .task_compat import install_plan_task_compatibility
         from .task_hardening import install_task_hardening
 
         install_task_hardening()
+        install_plan_task_compatibility()
